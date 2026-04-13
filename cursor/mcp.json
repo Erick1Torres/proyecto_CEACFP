@@ -1,0 +1,11 @@
+{
+  "mcpServers": [
+    {
+      "name": "github",
+      "type": "command",
+      "command": "bash npx -y @modelcontextprotocol/server-github",
+      "claves": ["GITHUB_PERSONAL_ACCESS_TOKEN"],
+      "valores": ["${GITHUB_PERSONAL_ACCESS_TOKEN}"]
+    }
+  ]
+}

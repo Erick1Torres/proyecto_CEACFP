@@ -1,0 +1,218 @@
+/* Definicion de las variables en el root
+   el root lo estoy utilizando para facilitar el matenimiento por si quiero cambiar el color o un espaciado 
+   se actualizara en todo el diseño automaticamente faciltitando y agilizando mas su mantenimiento*/
+:root {
+  --color-bc: #f0f2f5;
+  --color-header: #282644;
+  --color-background: #d5f2cf;
+  --priority-high: #ef4444;
+  --priority-medium: #f59e0b;
+  --priority-low: #10b981;
+  --corners: 24px;
+  --font-main: 'Segoe UI', Tahoma, Verdana, sans-serif;
+}
+
+/* Aqui configuro el cuerpo para centralizar la app y usar el sistema de fuente en el root */
+body {
+  background-color: var(--color-bc);
+  font-family: var(--font-main);
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+/* Le doy estilo al contenedor-nota un estilo tipo tarjeta*/
+.contenedor-background {
+  background: var(--color-background);
+  width: 95%;
+  max-width: 850px;
+  padding: var(--corners);
+  border-radius: var(--corners);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+/* Este es el encabezado tipo semantico de la app*/
+header {
+  background: var(--color-header);
+  color: white;
+  text-align: center;
+  padding: 15px;
+  border-radius: var(--corners);
+  margin-bottom: var(--corners);
+}
+
+/* Maquetacion flexbox 
+    Esto divide la interfaz como una estructura de columnas */
+.layout-flex {
+  display: flex;
+  gap: var(--corners); /* Esto crea espacios uniformes entre la barra lateral y y la lista principal*/
+}
+
+/* La barra lateral contiene los filtros de categoria*/
+.barra-lateral {
+  flex: 1; /* lo que estoy haciendo aqui con el flex es ocupar 1 fraccion del espacio total del contenedor flex */
+}
+
+/* Contenedor de la lista*/
+.lista-tareas {
+  flex: 3; /* Aqui lo mismo que en el barra lateral pero con la diferencia que ocupo 3 osea el triple */
+  display: flex;
+  flex-direction: column; /* Apilado vertical*/
+  gap: 12px; /* Espacio interno entre tarjetas de tarea*/
+}
+#task-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+#task-form input, 
+#task-form select, 
+#search-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+#task-input {
+  flex-grow: 1; /* El campo de texto crece para ocupar espacio */
+}
+
+#search-input {
+  width: 100%;
+  margin-bottom: 20px;
+  box-sizing: border-box; /* Para que el padding no afecte al ancho total */
+  border: 2px solid #ffffffcc;
+}
+
+/* Botón de añadir tarea */
+#task-form button {
+  background: var(--color-header);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+#task-form button:hover {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
+}
+/* Estilo de la Tarea con Flex 
+    maqueto cada tarjeta para que el titulo, categoria y prioridad se alineen solos */
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  transition: transform 0.2s;
+  border-left: 5px solid #ccc;
+}
+ /* desplazo a la derecha para que es usuario visualise el feedback*/
+.task:hover { transform: translateX(5px); }
+
+/* Este es el control de proporciones dentro de la tarjeta de tareas*/
+.title { flex: 2; font-weight: bold; }
+.category { flex: 1; font-size: 0.9em; color: #666; }
+
+/* Doy diseño a las prioridades, un diseño tipo serrado (para mi llamado mejor tipo pildoras)*/
+.priority { 
+  padding: 5px 12px; 
+  border-radius: 20px; 
+  color: white; 
+  font-size: 0.8em;
+  text-align: center;
+}
+
+/* Colores de prioridad */
+.alta { border-left-color: var(--priority-high); }
+.alta .priority { background: var(--priority-high); }
+.media { border-left-color: var(--priority-medium); }
+.media .priority { background: var(--priority-medium); }
+.baja { border-left-color: var(--priority-low); }
+.baja .priority { background: var(--priority-low); }
+
+/* Estilo de navegacion*/
+aside ul { list-style: none; padding: 0; }
+aside li {
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #ffffffcc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: 0.3s;
+}
+
+.btn-eliminar {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 10px;
+  transition: background 0.3s;
+        }
+
+.btn-eliminar:hover {
+  background: #cc0000;
+        }
+        /* Asegura que los elementos de la tarea se alineen bien con el nuevo botón */
+
+
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+        }
+
+
+
+
+/* Aqui le doy color como si estuviera en una categoria en este caso el color se pondra en categorias todas*/
+aside li.active { background: var(--color-header); color: white; }
+
+/* Medida para la adaptabilidad en los moviles 
+    Esto lo que hace es que cuando la medida es menor a 600px el diseño se adapte al cambio asiendolo tipo a solo una columna*/
+@media (max-width: 600px) {
+    /* esto es lo que hace pasar de sumnas a filas*/
+  .layout-flex {
+    flex-direction: column; 
+  }
+
+  #task-form {
+    flex-direction: column;
+  }
+
+
+  /* Y esto hace cambiar de fila a columna para que los textos no se amontonen */
+  .task {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-eliminar {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 5px;
+  }
+
+  /* Esto hace que el menu lateral se convierta en horizontal*/
+  aside ul {
+    display: flex;
+    flex-wrap: wrap; /* Esto es lo que me permite que baje si no hay espacio*/
+    gap: 10px;
+  }
+  
+  /* el filto se expande para rellenar el ancho*/
+  aside li { flex: 1; 
+    text-align: center; }
+}
