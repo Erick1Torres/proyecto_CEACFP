@@ -12,3 +12,7 @@ Thumbs.db
 
 # Cursor local config/secrets
 .cursor/
+
+# Python
+__pycache__/
+*.py[cod]

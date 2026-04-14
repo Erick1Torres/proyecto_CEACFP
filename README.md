@@ -4,6 +4,16 @@ Pagina web local que **registra ataques simulados o enviados por script** (por e
 
 Importante: esto es un **registro en el navegador** (`localStorage`), no sustituye a un IDS o firewall reales. Sirve como **demo academica** y panel de seguimiento.
 
+## Laboratorio pfSense + Suricata + auditoria (memoria / TFG)
+
+La **implementacion en red** (VMs, ISOs, paquetes) no puede empaquetarse dentro de los HTML; esta en el directorio **`lab/`**:
+
+- [`lab/README.md`](lab/README.md) — indice
+- [`lab/pfsense/`](lab/pfsense/README.md) — firewall perimetral y reglas documentadas
+- [`lab/suricata/`](lab/suricata/README.md) — IDS/IPS con Suricata (Snort como alternativa en el enunciato)
+- [`lab/auditoria/`](lab/auditoria/README.md) — pentest y mitigaciones
+- [`lab/LIMITACIONES-Y-ALTERNATIVAS.md`](lab/LIMITACIONES-Y-ALTERNATIVAS.md) — que vive en Git y que no
+
 ## Archivos
 
 | Archivo | Rol |
@@ -13,6 +23,17 @@ Importante: esto es un **registro en el navegador** (`localStorage`), no sustitu
 | `app.js` | Interfaz (filtros, tema, exportacion) |
 | `log-attack.html` | Pagina minima para **anadir un ataque por URL** y volver al panel (idonea para automatizacion) |
 | `style.css` | Estilos complementarios |
+| `scripts/run_lab_web_demo.py` | Servidor HTTP local + demo que abre `log-attack.html` con parametros (ver [`scripts/README.md`](scripts/README.md)) |
+
+## Web automatizada (recomendado para Git / mismo origen HTTP)
+
+Usa **Python 3** desde la raiz del repo:
+
+```bash
+python3 scripts/run_lab_web_demo.py demo
+```
+
+Eso levanta `http://127.0.0.1:8080/` y registra varios ataques de ejemplo mediante `log-attack.html` (misma logica que siempre). Detalle: [`scripts/README.md`](scripts/README.md).
 
 ## Uso rapido
 

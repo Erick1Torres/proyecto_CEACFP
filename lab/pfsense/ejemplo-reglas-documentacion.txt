@@ -1,0 +1,27 @@
+# Ejemplo COMENTADO de política en pfSense (laboratorio)
+# No copies ciegamente: adapta interfaz, alias y orden a tu red.
+# En la GUI: Firewall > Rules > [WAN | LAN]
+
+# --- Objetivo ---
+# - WAN: denegar por defecto lo que no sea estrictamente necesario hacia servicios expuestos
+# - LAN: permitir salida HTTP/HTTPS y DNS; denegar el resto salvo excepciones documentadas
+
+# Ejemplo de ALIASES (Firewall > Aliases)
+# NAME: RFC1918_LAN_NETS  Type: Network(s)  Values: 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12
+# NAME: ADMIN_SSH_SRC     Type: Host(s)     Values: 198.51.100.50   # IP de administración simulada
+
+# Ejemplo de REGLAS WAN (orden de arriba a abajo importa)
+# 1) Permitir VPN o servicio concreto SOLO si lo usas en el lab (documentar puerto/proto)
+# 2) Regla de bloqueo explícito hacia servicios sensibles no ofrecidos
+# 3) Implicit deny (pfSense ya deniega lo no permitido; documenta qué queda explícito con logging)
+
+# Ejemplo de REGLA LAN a Internet
+# Action: Pass | Interface: LAN | Protocol: TCP | Source: LAN net | Destination: any
+# Dest. port: 443 (HTTPS) — documentar por qué se permite
+# Log: opcional según necesidad de auditoría
+
+# Para la MEMORIA: incluye captura de pantalla con:
+# - nombre de la regla
+# - interfaz
+# - acción Pass/Block
+# - logging activado en al menos una regla de bloqueo demostrable
