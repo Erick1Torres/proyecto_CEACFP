@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrar ataque (redireccion)</title>
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 2rem; max-width: 40rem">
+    <p>Registrando ataque y volviendo al panel principal…</p>
+    <p style="font-size: 0.85rem; color: #64748b">
+      Si no redirige, abre <code>index.html</code> manualmente. Parametros:
+      <code>?type=port_scan&amp;src=198.51.100.1</code>
+    </p>
+    <script src="attack-store.js"></script>
+    <script>
+      (function () {
+        if (typeof AttackStore === "undefined") {
+          window.location.replace("index.html");
+          return;
+        }
+        if (AttackStore.addFromCurrentQuery()) {
+          window.location.replace("index.html");
+        } else {
+          window.location.replace("index.html?logError=1");
+        }
+      })();
+    </script>
+  </body>
+</html>

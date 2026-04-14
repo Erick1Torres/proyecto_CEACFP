@@ -5,270 +5,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        darkMode: "class",
-      };
+      tailwind.config = { darkMode: "class" };
     </script>
-    <title>TaskFlow</title>
+    <title>Registro de ataques — IDS/IPS · Firewall · Auditoria</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
-  <body
-    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300"
-  >
-    <div
-      id="toast-container"
-      class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
-      aria-live="polite"
-      aria-atomic="true"
-    ></div>
+  <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none" aria-live="polite"></div>
 
-    <header
-      class="bg-blue-600 dark:bg-blue-800 text-white p-6 shadow-md flex justify-between items-center"
-    >
-      <h1 class="text-3xl font-bold italic">TaskFlow</h1>
-      <button
-        id="theme-toggle"
-        class="p-2 rounded-full bg-blue-500 dark:bg-gray-700 hover:bg-blue-400 transition-all text-xl"
-        aria-label="Cambiar tema"
-      >
-        <span id="theme-icon">🌙</span>
-      </button>
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 md:px-8 py-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Monitor de ataques externos</h1>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Registro local del trafico hostil simulado o registrado por script · Tres capas: IDS/IPS, firewall perimetral, auditoria
+          </p>
+        </div>
+        <button id="theme-toggle" type="button" class="px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm font-semibold" aria-label="Cambiar tema">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
     </header>
 
-    <div
-      class="max-w-6xl mx-auto w-full flex flex-col md:flex-row gap-8 p-4 md:p-8 flex-1"
-    >
-      <aside
-        class="md:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm h-fit border border-gray-200 dark:border-gray-700"
-      >
-        <h2 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">
-          Panel de Control
-        </h2>
+    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+      <!-- Contadores -->
+      <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="stat-card">
+          <p class="text-sm text-slate-600 dark:text-slate-400">Total ataques registrados</p>
+          <p id="stat-total" class="text-3xl font-bold text-slate-900 dark:text-white">0</p>
+        </article>
+        <article class="stat-card">
+          <p class="text-sm text-slate-600 dark:text-slate-400">Ultimas 24 h</p>
+          <p id="stat-24h" class="text-3xl font-bold text-amber-700 dark:text-amber-400">0</p>
+        </article>
+        <article class="stat-card">
+          <p class="text-sm text-slate-600 dark:text-slate-400">Severidad alta</p>
+          <p id="stat-high" class="text-3xl font-bold text-rose-700 dark:text-rose-400">0</p>
+        </article>
+        <article class="stat-card">
+          <p class="text-sm text-slate-600 dark:text-slate-400">Severidad media / baja</p>
+          <p id="stat-rest" class="text-3xl font-bold text-emerald-700 dark:text-emerald-400">0</p>
+        </article>
+      </section>
 
-        <div class="mb-6">
-          <h3 class="font-semibold mb-2">Estadísticas</h3>
-          <p class="text-sm">
-            Total: <span id="total-tasks" class="font-bold">0</span>
+      <!-- Los 3 pasos del proyecto -->
+      <section class="grid gap-4 lg:grid-cols-3">
+        <article class="pillar-card pillar-ids">
+          <h2 class="font-bold text-lg text-sky-800 dark:text-sky-300">Paso 1: IDS / IPS</h2>
+          <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">
+            Deteccion y prevencion (Snort o Suricata): cada ataque genera una correlacion simulada en esta capa.
           </p>
-          <p class="text-sm text-green-600 dark:text-green-400">
-            Completadas: <span id="completed-tasks" class="font-bold">0</span>
+          <p class="text-xs mt-3 text-slate-600 dark:text-slate-400">
+            Eventos procesados: <span id="pillar-ids-count" class="font-bold">0</span>
           </p>
-          <p class="text-sm text-amber-600 dark:text-amber-400">
-            Pendientes: <span id="pending-tasks" class="font-bold">0</span>
+        </article>
+        <article class="pillar-card pillar-fw">
+          <h2 class="font-bold text-lg text-violet-800 dark:text-violet-300">Paso 2: Firewall perimetral</h2>
+          <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">
+            pfSense o firewall hardware: respuesta simulada (bloqueo / limitacion) por politica perimetral.
           </p>
-        </div>
+          <p class="text-xs mt-3 text-slate-600 dark:text-slate-400">
+            Decisiones de capa: <span id="pillar-fw-count" class="font-bold">0</span>
+          </p>
+        </article>
+        <article class="pillar-card pillar-audit">
+          <h2 class="font-bold text-lg text-amber-900 dark:text-amber-200">Paso 3: Auditoria y refuerzo</h2>
+          <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">
+            Pentest, hallazgos y mitigacion: cada evento queda auditado con recomendacion de seguimiento.
+          </p>
+          <p class="text-xs mt-3 text-slate-600 dark:text-slate-400">
+            Registros de auditoria: <span id="pillar-audit-count" class="font-bold">0</span>
+          </p>
+        </article>
+      </section>
 
-        <div class="search-section">
-          <h3 class="font-semibold mb-2">Filtrar por texto</h3>
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Ej: Comprar pan..."
-            class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-          />
-        </div>
-
-        <div class="mt-4">
-          <h3 class="font-semibold mb-2">Filtrar por categoria</h3>
-          <label for="category-filter" class="sr-only"
-            >Filtrar por categoria</label
-          >
-          <select
-            id="category-filter"
-            class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
-          >
-            <option value="all">Todas</option>
-            <option value="personal">Personal</option>
-            <option value="work">Trabajo</option>
-            <option value="study">Estudio</option>
-            <option value="health">Salud</option>
-          </select>
-        </div>
-      </aside>
-
-      <main class="flex-1">
-        <section
-          class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm mb-8 border border-gray-200 dark:border-gray-700"
-        >
-          <h2 class="text-xl font-bold mb-4 text-blue-600">Nueva Tarea</h2>
-          <form id="todo-form" class="flex flex-col gap-4">
-            <label
-              for="task-input"
-              class="font-medium text-gray-600 dark:text-gray-300"
-            >
-              >¿Qué tienes pendiente?</label
-            >
-            <input
-              type="text"
-              id="task-input"
-              placeholder="Escriba una tarea"
-              class="p-3 rounded-lg border-2 dark:bg-gray-700 dark:border-gray-600 focus:border-blue-500 outline-none transition-all"
-            />
-            <div class="flex flex-col gap-2">
-              <label
-                for="category-select"
-                class="font-medium text-gray-600 dark:text-gray-300"
-                >Categoría</label
-              >
-              <select
-                id="category-select"
-                class="p-3 rounded-lg border-2 dark:bg-gray-700 dark:border-gray-600 focus:border-blue-500 outline-none transition-all"
-              >
-                <option value="personal">Personal</option>
-                <option value="work">Trabajo</option>
-                <option value="study">Estudio</option>
-                <option value="health">Salud</option>
-              </select>
-            </div>
-            <button
-              type="submit"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg"
-              aria-label="Añadir tarea"
-            >
-              Añadir
-            </button>
-          </form>
-        </section>
-
-        <section>
-          <h2 class="text-xl font-bold mb-4">Mis Tareas</h2>
-
-          <div class="flex gap-2 justify-center mb-4">
-            <button
-              id="complete-all-btn"
-              class="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 px-4 py-2 rounded-full font-bold hover:scale-105 transition-transform"
-              aria-label="Marcar todas como completadas"
-            >
-              ✅ Marcar todas
-            </button>
-            <button
-              id="clear-completed-btn"
-              class="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 px-4 py-2 rounded-full font-bold hover:scale-105 transition-transform"
-              aria-label="Eliminar todas las tareas completadas"
-            >
-              🗑️ Borrar completadas
-            </button>
+      <!-- Registrar ataque (manual o simulado) -->
+      <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
+        <h2 class="text-xl font-bold mb-4">Registrar un ataque</h2>
+        <form id="attack-form" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 md:items-end">
+          <div class="lg:col-span-2">
+            <label for="attack-type" class="block text-sm font-semibold mb-1">Tipo de ataque</label>
+            <select id="attack-type" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-sky-500"></select>
           </div>
-
-          <div class="flex gap-2 justify-center mb-6">
-            <button
-              class="filter-btn active px-4 py-2 rounded-full text-sm font-semibold transition-all bg-gray-200 dark:bg-gray-700 [&.active]:bg-blue-600 [&.active]:text-white"
-              data-filter="all"
-              aria-label="Todas las tareas"
-            >
-              Todas
-            </button>
-            <button
-              class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-all bg-gray-200 dark:bg-gray-700 [&.active]:bg-blue-600 [&.active]:text-white"
-              data-filter="completed"
-              aria-label="Tareas completadas"
-            >
-              Hechas
-            </button>
-            <button
-              class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-all bg-gray-200 dark:bg-gray-700 [&.active]:bg-blue-600 [&.active]:text-white"
-              data-filter="pending"
-              aria-label="Tareas pendientes"
-            >
-              Pendientes
-            </button>
+          <div>
+            <label for="attack-source" class="block text-sm font-semibold mb-1">Origen (IP simulada)</label>
+            <input id="attack-source" type="text" placeholder="Auto si vacio" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-sky-500 font-mono text-sm" />
           </div>
-
-          <div class="mb-6 flex justify-end">
-            <label
-              for="sort-select"
-              class="sr-only"
-              >Ordenar tareas</label
-            >
-            <select
-              id="sort-select"
-              class="p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm"
-              aria-label="Ordenar tareas"
-            >
-              <option value="recent">Mas recientes</option>
-              <option value="oldest">Mas antiguas</option>
-              <option value="alphabetical">A-Z</option>
-              <option value="status">Pendientes primero</option>
-            </select>
+          <div>
+            <label for="attack-note" class="block text-sm font-semibold mb-1">Nota (opcional)</label>
+            <input id="attack-note" type="text" placeholder="Ej. prueba lab ASIR" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
           </div>
-
-          <ul id="task-list" class="space-y-3"></ul>
-
-          <template id="task-template">
-            <li
-              class="task-item bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm hover:shadow-md"
-            >
-              <div class="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  class="task-checkbox w-5 h-5 accent-blue-600"
-                />
-                <div class="flex flex-col gap-1">
-                  <span
-                    class="task-text font-medium text-gray-700 dark:text-gray-200"
-                  ></span>
-                  <span class="task-category-badge task-category-personal"
-                    >Personal</span
-                  >
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  class="edit-btn text-blue-500 hover:text-blue-700 font-bold text-sm"
-                  aria-label="Editar tarea"
-                >
-                  Editar
-                </button>
-                <button
-                  class="delete-btn text-red-500 hover:text-red-700 font-bold text-sm"
-                  aria-label="Eliminar tarea"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </li>
-          </template>
-        </section>
-      </main>
-    </div>
-
-    <footer class="bg-gray-800 text-gray-400 text-center py-6 mt-8">
-      <p>TaskFlow</p>
-    </footer>
-
-    <dialog
-      id="edit-modal"
-      class="rounded-2xl p-0 overflow-hidden bg-transparent"
-    >
-      <div
-        class="bg-white dark:bg-gray-800 p-8 w-80 md:w-96 shadow-2xl border border-gray-200 dark:border-gray-700"
-      >
-        <form method="dialog" class="flex flex-col gap-4">
-          <h3 class="text-xl font-bold text-blue-600">Editar Tarea</h3>
-          <input
-            type="text"
-            id="edit-input"
-            class="w-full p-3 rounded-lg border dark:bg-gray-700 dark:border-gray-600 outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <div class="flex justify-end gap-3 mt-4">
-            <button
-              type="button"
-              id="cancel-edit"
-              class="px-4 py-2 text-gray-500 font-bold"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              id="save-edit"
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow-md"
-            >
-              Guardar
-            </button>
+          <div class="md:col-span-2 lg:col-span-4 flex flex-wrap gap-3">
+            <button type="submit" class="bg-sky-700 hover:bg-sky-800 text-white font-semibold px-4 py-2 rounded-lg">Registrar ataque</button>
+            <button type="button" id="btn-random" class="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-4 py-2 rounded-lg">Simular ataque aleatorio</button>
+            <button type="button" id="btn-clear" class="bg-rose-700 hover:bg-rose-800 text-white font-semibold px-4 py-2 rounded-lg">Vaciar registro</button>
+            <button type="button" id="btn-export" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg">Exportar JSON</button>
           </div>
         </form>
-      </div>
-    </dialog>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-4">
+          Automatizacion: abre
+          <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">log-attack.html?type=port_scan&amp;src=198.51.100.10</code>
+          o usa la URL de esta pagina con
+          <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">?type=brute_force_ssh&amp;src=...</code>
+          (ver README).
+        </p>
+      </section>
 
+      <!-- Filtros -->
+      <section class="flex flex-wrap gap-4 items-center">
+        <label class="text-sm font-semibold" for="filter-type">Filtrar tipo</label>
+        <select id="filter-type" class="px-3 py-2 rounded-lg border dark:bg-slate-900 dark:border-slate-600 text-sm max-w-xs"></select>
+        <label class="text-sm font-semibold" for="filter-sev">Severidad</label>
+        <select id="filter-sev" class="px-3 py-2 rounded-lg border dark:bg-slate-900 dark:border-slate-600 text-sm">
+          <option value="all">Todas</option>
+          <option value="high">Alta</option>
+          <option value="medium">Media</option>
+          <option value="low">Baja</option>
+        </select>
+      </section>
+
+      <!-- Lista -->
+      <section>
+        <h2 class="text-xl font-bold mb-4">Registro de ataques (<span id="list-count">0</span>)</h2>
+        <ul id="attack-list" class="space-y-3"></ul>
+
+        <template id="attack-template">
+          <li class="attack-row bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
+            <div class="flex flex-wrap justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
+              <div>
+                <h3 class="attack-title font-bold text-lg"></h3>
+                <p class="attack-meta text-sm text-slate-600 dark:text-slate-400 mt-1"></p>
+              </div>
+              <span class="sev-badge text-xs font-bold px-3 py-1 rounded-full h-fit"></span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-3 text-sm">
+              <div class="layer-box layer-ids">
+                <p class="font-semibold text-sky-800 dark:text-sky-300">IDS / IPS</p>
+                <p class="layer-tool text-slate-600 dark:text-slate-400 mt-1"></p>
+                <p class="layer-action font-medium mt-1"></p>
+                <p class="layer-detail text-slate-600 dark:text-slate-400 mt-1 text-xs"></p>
+              </div>
+              <div class="layer-box layer-fw">
+                <p class="font-semibold text-violet-800 dark:text-violet-300">Firewall</p>
+                <p class="layer-tool text-slate-600 dark:text-slate-400 mt-1"></p>
+                <p class="layer-action font-medium mt-1"></p>
+                <p class="layer-detail text-slate-600 dark:text-slate-400 mt-1 text-xs"></p>
+              </div>
+              <div class="layer-box layer-audit">
+                <p class="font-semibold text-amber-900 dark:text-amber-200">Auditoria</p>
+                <p class="layer-tool text-slate-600 dark:text-slate-400 mt-1"></p>
+                <p class="layer-action font-medium mt-1"></p>
+                <p class="layer-detail text-slate-600 dark:text-slate-400 mt-1 text-xs"></p>
+              </div>
+            </div>
+          </li>
+        </template>
+
+        <div id="empty-state" class="hidden empty-state border border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center text-slate-500 dark:text-slate-400">
+          <p id="empty-title" class="font-semibold">No hay ataques en el registro</p>
+          <p id="empty-sub" class="text-sm mt-2">Registra uno manualmente, simula uno o envia uno por URL o log-attack.html</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="attack-store.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

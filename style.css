@@ -1,91 +1,104 @@
-#task-list li {
-  /* Mantenemos tu transición suave y profesional */
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  max-height: 500px;
-  opacity: 1 !important;
-  transform: translateY(0) scale(1);
+.stat-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
-/* ESTADO INVISIBLE: 
-   Lo usamos para las tareas que se están BORRANDO 
-   y para las que acaban de NACER.
-*/
-#task-list li.opacity-0 {
-  opacity: 0 !important;
-  transform: translateY(20px) scale(0.95) !important;
-  max-height: 0 !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  pointer-events: none;
+.dark .stat-card {
+  background: #0f172a;
+  border-color: #334155;
 }
 
-dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+.pillar-card {
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
 }
 
-.task-category-badge {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  border-radius: 9999px;
-  padding: 2px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+.dark .pillar-card {
+  border-color: #334155;
 }
 
-.task-category-personal {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+.pillar-ids {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 100%);
 }
 
-.task-category-work {
-  background-color: #ede9fe;
-  color: #6d28d9;
+.dark .pillar-ids {
+  background: linear-gradient(135deg, #0c4a6e 0%, #0f172a 100%);
 }
 
-.task-category-study {
-  background-color: #dcfce7;
+.pillar-fw {
+  background: linear-gradient(135deg, #ede9fe 0%, #f8fafc 100%);
+}
+
+.dark .pillar-fw {
+  background: linear-gradient(135deg, #4c1d95 0%, #0f172a 100%);
+}
+
+.pillar-audit {
+  background: linear-gradient(135deg, #fef3c7 0%, #f8fafc 100%);
+}
+
+.dark .pillar-audit {
+  background: linear-gradient(135deg, #78350f 0%, #0f172a 100%);
+}
+
+.attack-row {
+  transition: opacity 0.2s ease;
+}
+
+.sev-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.sev-medium {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.sev-low {
+  background: #dcfce7;
   color: #166534;
 }
 
-.task-category-health {
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
-
-.dark .task-category-personal {
-  background-color: #1e3a8a;
-  color: #bfdbfe;
-}
-
-.dark .task-category-work {
-  background-color: #4c1d95;
-  color: #ddd6fe;
-}
-
-.dark .task-category-study {
-  background-color: #14532d;
-  color: #bbf7d0;
-}
-
-.dark .task-category-health {
-  background-color: #7f1d1d;
+.dark .sev-high {
+  background: #7f1d1d;
   color: #fecaca;
 }
 
-.empty-state-card {
-  animation: fadeInUp 0.25s ease-out;
+.dark .sev-medium {
+  background: #7c2d12;
+  color: #fed7aa;
 }
 
-@keyframes fadeInUp {
+.dark .sev-low {
+  background: #14532d;
+  color: #bbf7d0;
+}
+
+.layer-box {
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .layer-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.empty-state {
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -95,27 +108,15 @@ dialog::backdrop {
 
 .toast {
   pointer-events: auto;
-  background: #111827;
-  color: #f9fafb;
+  background: #0f172a;
+  color: #f8fafc;
   border-radius: 10px;
   padding: 10px 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.25);
   font-size: 14px;
-  animation: toastIn 0.2s ease-out;
 }
 
 .dark .toast {
-  background: #1f2937;
-  color: #f3f4f6;
-}
-
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  background: #1e293b;
+  color: #f1f5f9;
 }
