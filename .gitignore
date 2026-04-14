@@ -1,0 +1,14 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Editor (VS Code)
+.vscode/
+*.code-workspace
+
+# Cursor local config/secrets
+.cursor/

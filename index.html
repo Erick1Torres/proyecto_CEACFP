@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+    <title>TaskFlow</title>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300"
+  >
+    <div
+      id="toast-container"
+      class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <header
+      class="bg-blue-600 dark:bg-blue-800 text-white p-6 shadow-md flex justify-between items-center"
+    >
+      <h1 class="text-3xl font-bold italic">TaskFlow</h1>
+      <button
+        id="theme-toggle"
+        class="p-2 rounded-full bg-blue-500 dark:bg-gray-700 hover:bg-blue-400 transition-all text-xl"
+        aria-label="Cambiar tema"
+      >
+        <span id="theme-icon">🌙</span>
+      </button>
+    </header>
+
+    <div
+      class="max-w-6xl mx-auto w-full flex flex-col md:flex-row gap-8 p-4 md:p-8 flex-1"
+    >
+      <aside
+        class="md:w-64 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm h-fit border border-gray-200 dark:border-gray-700"
+      >
+        <h2 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">
+          Panel de Control
+        </h2>
+
+        <div class="mb-6">
+          <h3 class="font-semibold mb-2">Estadísticas</h3>
+          <p class="text-sm">
+            Total: <span id="total-tasks" class="font-bold">0</span>
+          </p>
+          <p class="text-sm text-green-600 dark:text-green-400">
+            Completadas: <span id="completed-tasks" class="font-bold">0</span>
+          </p>
+          <p class="text-sm text-amber-600 dark:text-amber-400">
+            Pendientes: <span id="pending-tasks" class="font-bold">0</span>
+          </p>
+        </div>
+
+        <div class="search-section">
+          <h3 class="font-semibold mb-2">Filtrar por texto</h3>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Ej: Comprar pan..."
+            class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+          />
+        </div>
+
+        <div class="mt-4">
+          <h3 class="font-semibold mb-2">Filtrar por categoria</h3>
+          <label for="category-filter" class="sr-only"
+            >Filtrar por categoria</label
+          >
+          <select
+            id="category-filter"
+            class="w-full p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+          >
+            <option value="all">Todas</option>
+            <option value="personal">Personal</option>
+            <option value="work">Trabajo</option>
+            <option value="study">Estudio</option>
+            <option value="health">Salud</option>
+          </select>
+        </div>
+      </aside>
+
+      <main class="flex-1">
+        <section
+          class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm mb-8 border border-gray-200 dark:border-gray-700"
+        >
+          <h2 class="text-xl font-bold mb-4 text-blue-600">Nueva Tarea</h2>
+          <form id="todo-form" class="flex flex-col gap-4">
+            <label
+              for="task-input"
+              class="font-medium text-gray-600 dark:text-gray-300"
+            >
+              >¿Qué tienes pendiente?</label
+            >
+            <input
+              type="text"
+              id="task-input"
+              placeholder="Escriba una tarea"
+              class="p-3 rounded-lg border-2 dark:bg-gray-700 dark:border-gray-600 focus:border-blue-500 outline-none transition-all"
+            />
+            <div class="flex flex-col gap-2">
+              <label
+                for="category-select"
+                class="font-medium text-gray-600 dark:text-gray-300"
+                >Categoría</label
+              >
+              <select
+                id="category-select"
+                class="p-3 rounded-lg border-2 dark:bg-gray-700 dark:border-gray-600 focus:border-blue-500 outline-none transition-all"
+              >
+                <option value="personal">Personal</option>
+                <option value="work">Trabajo</option>
+                <option value="study">Estudio</option>
+                <option value="health">Salud</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg"
+              aria-label="Añadir tarea"
+            >
+              Añadir
+            </button>
+          </form>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-bold mb-4">Mis Tareas</h2>
+
+          <div class="flex gap-2 justify-center mb-4">
+            <button
+              id="complete-all-btn"
+              class="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 px-4 py-2 rounded-full font-bold hover:scale-105 transition-transform"
+              aria-label="Marcar todas como completadas"
+            >
+              ✅ Marcar todas
+            </button>
+            <button
+              id="clear-completed-btn"
+              class="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 px-4 py-2 rounded-full font-bold hover:scale-105 transition-transform"
+              aria-label="Eliminar todas las tareas completadas"
+            >
+              🗑️ Borrar completadas
+            </button>
+          </div>
+
+          <div class="flex gap-2 justify-center mb-6">
+            <button
+              class="filter-btn active px-4 py-2 rounded-full text-sm font-semibold transition-all bg-gray-200 dark:bg-gray-700 [&.active]:bg-blue-600 [&.active]:text-white"
+              data-filter="all"
+              aria-label="Todas las tareas"
+            >
+              Todas
+            </button>
+            <button
+              class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-all bg-gray-200 dark:bg-gray-700 [&.active]:bg-blue-600 [&.active]:text-white"
+              data-filter="completed"
+              aria-label="Tareas completadas"
+            >
+              Hechas
+            </button>
+            <button
+              class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-all bg-gray-200 dark:bg-gray-700 [&.active]:bg-blue-600 [&.active]:text-white"
+              data-filter="pending"
+              aria-label="Tareas pendientes"
+            >
+              Pendientes
+            </button>
+          </div>
+
+          <div class="mb-6 flex justify-end">
+            <label
+              for="sort-select"
+              class="sr-only"
+              >Ordenar tareas</label
+            >
+            <select
+              id="sort-select"
+              class="p-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600 text-sm"
+              aria-label="Ordenar tareas"
+            >
+              <option value="recent">Mas recientes</option>
+              <option value="oldest">Mas antiguas</option>
+              <option value="alphabetical">A-Z</option>
+              <option value="status">Pendientes primero</option>
+            </select>
+          </div>
+
+          <ul id="task-list" class="space-y-3"></ul>
+
+          <template id="task-template">
+            <li
+              class="task-item bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm hover:shadow-md"
+            >
+              <div class="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  class="task-checkbox w-5 h-5 accent-blue-600"
+                />
+                <div class="flex flex-col gap-1">
+                  <span
+                    class="task-text font-medium text-gray-700 dark:text-gray-200"
+                  ></span>
+                  <span class="task-category-badge task-category-personal"
+                    >Personal</span
+                  >
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  class="edit-btn text-blue-500 hover:text-blue-700 font-bold text-sm"
+                  aria-label="Editar tarea"
+                >
+                  Editar
+                </button>
+                <button
+                  class="delete-btn text-red-500 hover:text-red-700 font-bold text-sm"
+                  aria-label="Eliminar tarea"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </li>
+          </template>
+        </section>
+      </main>
+    </div>
+
+    <footer class="bg-gray-800 text-gray-400 text-center py-6 mt-8">
+      <p>TaskFlow</p>
+    </footer>
+
+    <dialog
+      id="edit-modal"
+      class="rounded-2xl p-0 overflow-hidden bg-transparent"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 p-8 w-80 md:w-96 shadow-2xl border border-gray-200 dark:border-gray-700"
+      >
+        <form method="dialog" class="flex flex-col gap-4">
+          <h3 class="text-xl font-bold text-blue-600">Editar Tarea</h3>
+          <input
+            type="text"
+            id="edit-input"
+            class="w-full p-3 rounded-lg border dark:bg-gray-700 dark:border-gray-600 outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div class="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              id="cancel-edit"
+              class="px-4 py-2 text-gray-500 font-bold"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              id="save-edit"
+              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow-md"
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
