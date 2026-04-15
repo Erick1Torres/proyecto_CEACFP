@@ -1,259 +1,69 @@
-(function () {
-  var THEME_KEY = "corpAttackTheme";
+function renderList() {
+    const list = document.getElementById('attack-list');
+    const attacks = AttackStore.readAll();
+    const empty = document.getElementById('empty-state');
 
-  var form = document.getElementById("attack-form");
-  var typeSelect = document.getElementById("attack-type");
-  var sourceInput = document.getElementById("attack-source");
-  var noteInput = document.getElementById("attack-note");
-  var btnRandom = document.getElementById("btn-random");
-  var btnClear = document.getElementById("btn-clear");
-  var btnExport = document.getElementById("btn-export");
-  var filterType = document.getElementById("filter-type");
-  var filterSev = document.getElementById("filter-sev");
-  var list = document.getElementById("attack-list");
-  var template = document.getElementById("attack-template").content;
-  var emptyState = document.getElementById("empty-state");
-  var emptyTitle = document.getElementById("empty-title");
-  var emptySub = document.getElementById("empty-sub");
-
-  var statTotal = document.getElementById("stat-total");
-  var stat24 = document.getElementById("stat-24h");
-  var statHigh = document.getElementById("stat-high");
-  var statRest = document.getElementById("stat-rest");
-  var pillarIds = document.getElementById("pillar-ids-count");
-  var pillarFw = document.getElementById("pillar-fw-count");
-  var pillarAudit = document.getElementById("pillar-audit-count");
-  var listCount = document.getElementById("list-count");
-
-  var themeToggle = document.getElementById("theme-toggle");
-  var themeIcon = document.getElementById("theme-icon");
-  var toastContainer = document.getElementById("toast-container");
-
-  var TYPE_META = AttackStore.TYPE_META;
-  var typeKeys = Object.keys(TYPE_META).filter(function (k) {
-    return k !== "unknown";
-  });
-
-  function fillTypeSelects() {
-    typeSelect.innerHTML = "";
-    filterType.innerHTML = "";
-    var allOpt = document.createElement("option");
-    allOpt.value = "all";
-    allOpt.textContent = "Todos los tipos";
-    filterType.appendChild(allOpt);
-
-    typeKeys.forEach(function (key) {
-      var o = document.createElement("option");
-      o.value = key;
-      o.textContent = TYPE_META[key].label;
-      typeSelect.appendChild(o);
-
-      var f = document.createElement("option");
-      f.value = key;
-      f.textContent = TYPE_META[key].label;
-      filterType.appendChild(f);
-    });
-  }
-
-  function applyTheme(name) {
-    var dark = name === "dark";
-    document.documentElement.classList.toggle("dark", dark);
-    themeIcon.textContent = dark ? "☀️" : "🌙";
-  }
-
-  function showToast(msg) {
-    var t = document.createElement("div");
-    t.className = "toast";
-    t.textContent = msg;
-    toastContainer.appendChild(t);
-    setTimeout(function () {
-      t.remove();
-    }, 2400);
-  }
-
-  function formatDate(iso) {
-    try {
-      var d = new Date(iso);
-      return d.toLocaleString("es-ES");
-    } catch {
-      return iso;
-    }
-  }
-
-  function updateStats() {
-    var c = AttackStore.counts();
-    statTotal.textContent = String(c.total);
-    stat24.textContent = String(c.last24h);
-    statHigh.textContent = String(c.bySeverity.high);
-    statRest.textContent = String(c.bySeverity.medium + c.bySeverity.low);
-
-    var n = c.total;
-    pillarIds.textContent = String(n);
-    pillarFw.textContent = String(n);
-    pillarAudit.textContent = String(n);
-  }
-
-  function matchesFilter(entry) {
-    var t = filterType.value;
-    var s = filterSev.value;
-    if (t !== "all" && entry.type !== t) return false;
-    if (s !== "all" && entry.severity !== s) return false;
-    return true;
-  }
-
-  function renderList() {
-    var all = AttackStore.readAll();
-    var filtered = all.filter(matchesFilter);
-
-    listCount.textContent = String(filtered.length);
-
-    list.innerHTML = "";
-    if (!filtered.length) {
-      emptyState.classList.remove("hidden");
-      if (all.length && !filtered.length) {
-        emptyTitle.textContent = "Ningun resultado con este filtro";
-        emptySub.textContent = "Cambia tipo o severidad, o restablece filtros.";
-      } else {
-        emptyTitle.textContent = "No hay ataques en el registro";
-        emptySub.textContent =
-          "Registra uno manualmente, simula uno o envia uno por URL o log-attack.html";
-      }
-      updateStats();
-      return;
-    }
-    emptyState.classList.add("hidden");
-
-    filtered.forEach(function (a) {
-      var clone = template.cloneNode(true);
-      var row = clone.querySelector(".attack-row");
-      var title = row.querySelector(".attack-title");
-      var meta = row.querySelector(".attack-meta");
-      var sev = row.querySelector(".sev-badge");
-
-      title.textContent = a.typeLabel || a.type;
-      meta.textContent =
-        formatDate(a.at) +
-        " · Origen " +
-        a.source +
-        (a.note ? " · " + a.note : "");
-
-      sev.textContent =
-        a.severity === "high"
-          ? "Severidad alta"
-          : a.severity === "medium"
-            ? "Severidad media"
-            : "Severidad baja";
-      sev.className =
-        "sev-badge text-xs font-bold px-3 py-1 rounded-full h-fit sev-" + a.severity;
-
-      var L = a.layers;
-      var ids = row.querySelector(".layer-ids");
-      var fw = row.querySelector(".layer-fw");
-      var aud = row.querySelector(".layer-audit");
-
-      ids.querySelector(".layer-tool").textContent = L.ids_ips.tool;
-      ids.querySelector(".layer-action").textContent = L.ids_ips.action;
-      ids.querySelector(".layer-detail").textContent = L.ids_ips.detail;
-
-      fw.querySelector(".layer-tool").textContent = L.firewall.tool;
-      fw.querySelector(".layer-action").textContent = L.firewall.action;
-      fw.querySelector(".layer-detail").textContent = L.firewall.detail;
-
-      aud.querySelector(".layer-tool").textContent = L.audit.tool;
-      aud.querySelector(".layer-action").textContent = L.audit.action;
-      aud.querySelector(".layer-detail").textContent = L.audit.detail;
-
-      list.appendChild(clone);
-    });
-
-    updateStats();
-  }
-
-  function onSubmit(e) {
-    e.preventDefault();
-    AttackStore.addAttack({
-      type: typeSelect.value,
-      source: sourceInput.value.trim(),
-      note: noteInput.value.trim(),
-    });
-    sourceInput.value = "";
-    noteInput.value = "";
-    showToast("Ataque registrado.");
-    renderList();
-  }
-
-  function onRandom() {
-    var k = typeKeys[Math.floor(Math.random() * typeKeys.length)];
-    AttackStore.addAttack({
-      type: k,
-      source: "",
-      note: "Simulacion automatica",
-    });
-    showToast("Ataque aleatorio registrado.");
-    renderList();
-  }
-
-  function onClear() {
-    if (!AttackStore.readAll().length) return;
-    if (!confirm("Borrar todo el registro de ataques?")) return;
-    AttackStore.clearAll();
-    showToast("Registro vaciado.");
-    renderList();
-  }
-
-  function onExport() {
-    var blob = new Blob([JSON.stringify(AttackStore.readAll(), null, 2)], {
-      type: "application/json",
-    });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "registro-ataques-" + Date.now() + ".json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    showToast("JSON exportado.");
-  }
-
-  function init() {
-    fillTypeSelects();
-
-    var theme =
-      localStorage.getItem(THEME_KEY) ||
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    applyTheme(theme);
-
-    var qs = new URLSearchParams(window.location.search);
-    if (qs.get("logError")) {
-      showToast('En log-attack.html debes usar type o attack en la URL.');
-      window.history.replaceState({}, "", window.location.pathname);
+    if (attacks.length === 0) {
+        empty.classList.remove('hidden');
+        list.querySelectorAll('.attack-entry').forEach(e => e.remove());
+        updateStats(0, 0);
+        return;
     }
 
-    if (AttackStore.consumeQueryOnIndex()) {
-      showToast("Ataque registrado desde URL.");
-    }
+    empty.classList.add('hidden');
+    let highCount = 0;
 
-    themeToggle.addEventListener("click", function () {
-      var next = document.documentElement.classList.contains("dark") ? "light" : "dark";
-      applyTheme(next);
-      localStorage.setItem(THEME_KEY, next);
+    list.querySelectorAll('.attack-entry').forEach(e => e.remove());
+
+    attacks.forEach(a => {
+        if (a.severity === 'high') highCount++;
+        const div = document.createElement('div');
+        div.className = `attack-entry p-6 severity-${a.severity}`;
+        div.innerHTML = `
+            <div class="flex justify-between mb-4">
+                <span class="text-xs font-mono font-bold text-slate-500 uppercase">${a.at} | SRC: ${a.source}</span>
+                <span class="text-xs font-black uppercase tracking-widest px-2 py-1 rounded bg-white border border-slate-200">${a.severity}</span>
+            </div>
+            <h3 class="text-lg font-black text-slate-800 mb-4 italic">${a.type}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="bg-white/60 p-3 rounded border border-blue-100">
+                    <p class="font-bold text-blue-600 mb-1 uppercase tracking-tighter">1. Capa IDS (Snort)</p>
+                    <p class="text-slate-700">${a.ids}</p>
+                </div>
+                <div class="bg-white/60 p-3 rounded border border-purple-100">
+                    <p class="font-bold text-purple-600 mb-1 uppercase tracking-tighter">2. Firewall (pfSense)</p>
+                    <p class="text-slate-700 font-medium">${a.fw}</p>
+                </div>
+                <div class="bg-white/60 p-3 rounded border border-amber-100">
+                    <p class="font-bold text-amber-700 mb-1 uppercase tracking-tighter">3. Auditoría/Refuerzo</p>
+                    <p class="text-slate-700 italic">${a.audit}</p>
+                </div>
+            </div>
+        `;
+        list.appendChild(div);
     });
 
-    form.addEventListener("submit", onSubmit);
-    btnRandom.addEventListener("click", onRandom);
-    btnClear.addEventListener("click", onClear);
-    btnExport.addEventListener("click", onExport);
-    filterType.addEventListener("change", renderList);
-    filterSev.addEventListener("change", renderList);
+    updateStats(attacks.length, highCount);
+}
 
-    window.addEventListener("storage", function (ev) {
-      if (ev.key === AttackStore.STORAGE_KEY) renderList();
-    });
+function updateStats(total, high) {
+    document.getElementById('stat-total').innerText = total;
+    document.getElementById('stat-high').innerText = high;
+}
 
-    window.addEventListener("corp-attack-logged", function () {
-      renderList();
-    });
-
+function onRandom() {
+    const keys = Object.keys(AttackStore.types);
+    const key = keys[Math.floor(Math.random() * keys.length)];
+    AttackStore.addAttack(key);
     renderList();
-  }
+}
 
-  init();
-})();
+function onClear() {
+    if(confirm("¿Seguro que quieres borrar la evidencia de los ataques?")) {
+        AttackStore.clear();
+        renderList();
+    }
+}
+
+// Inicializar
+window.onload = renderList;

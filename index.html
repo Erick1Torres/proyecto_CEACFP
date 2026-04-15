@@ -1,174 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Seguridad ASIR - pfSense & Snort</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { darkMode: "class" };
-    </script>
-    <title>Registro de ataques — IDS/IPS · Firewall · Auditoria</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none" aria-live="polite"></div>
-
-    <header class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 md:px-8 py-5 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Monitor de ataques externos</h1>
-          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Registro local del trafico hostil simulado o registrado por script · Tres capas: IDS/IPS, firewall perimetral, auditoria
-          </p>
-        </div>
-        <button id="theme-toggle" type="button" class="px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-sm font-semibold" aria-label="Cambiar tema">
-          <span id="theme-icon">🌙</span>
-        </button>
-      </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
-      <!-- Contadores -->
-      <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article class="stat-card">
-          <p class="text-sm text-slate-600 dark:text-slate-400">Total ataques registrados</p>
-          <p id="stat-total" class="text-3xl font-bold text-slate-900 dark:text-white">0</p>
-        </article>
-        <article class="stat-card">
-          <p class="text-sm text-slate-600 dark:text-slate-400">Ultimas 24 h</p>
-          <p id="stat-24h" class="text-3xl font-bold text-amber-700 dark:text-amber-400">0</p>
-        </article>
-        <article class="stat-card">
-          <p class="text-sm text-slate-600 dark:text-slate-400">Severidad alta</p>
-          <p id="stat-high" class="text-3xl font-bold text-rose-700 dark:text-rose-400">0</p>
-        </article>
-        <article class="stat-card">
-          <p class="text-sm text-slate-600 dark:text-slate-400">Severidad media / baja</p>
-          <p id="stat-rest" class="text-3xl font-bold text-emerald-700 dark:text-emerald-400">0</p>
-        </article>
-      </section>
-
-      <!-- Los 3 pasos del proyecto -->
-      <section class="grid gap-4 lg:grid-cols-3">
-        <article class="pillar-card pillar-ids">
-          <h2 class="font-bold text-lg text-sky-800 dark:text-sky-300">Paso 1: IDS / IPS</h2>
-          <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">
-            Deteccion y prevencion (Snort o Suricata): cada ataque genera una correlacion simulada en esta capa.
-          </p>
-          <p class="text-xs mt-3 text-slate-600 dark:text-slate-400">
-            Eventos procesados: <span id="pillar-ids-count" class="font-bold">0</span>
-          </p>
-        </article>
-        <article class="pillar-card pillar-fw">
-          <h2 class="font-bold text-lg text-violet-800 dark:text-violet-300">Paso 2: Firewall perimetral</h2>
-          <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">
-            pfSense o firewall hardware: respuesta simulada (bloqueo / limitacion) por politica perimetral.
-          </p>
-          <p class="text-xs mt-3 text-slate-600 dark:text-slate-400">
-            Decisiones de capa: <span id="pillar-fw-count" class="font-bold">0</span>
-          </p>
-        </article>
-        <article class="pillar-card pillar-audit">
-          <h2 class="font-bold text-lg text-amber-900 dark:text-amber-200">Paso 3: Auditoria y refuerzo</h2>
-          <p class="text-sm text-slate-700 dark:text-slate-300 mt-2">
-            Pentest, hallazgos y mitigacion: cada evento queda auditado con recomendacion de seguimiento.
-          </p>
-          <p class="text-xs mt-3 text-slate-600 dark:text-slate-400">
-            Registros de auditoria: <span id="pillar-audit-count" class="font-bold">0</span>
-          </p>
-        </article>
-      </section>
-
-      <!-- Registrar ataque (manual o simulado) -->
-      <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
-        <h2 class="text-xl font-bold mb-4">Registrar un ataque</h2>
-        <form id="attack-form" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 md:items-end">
-          <div class="lg:col-span-2">
-            <label for="attack-type" class="block text-sm font-semibold mb-1">Tipo de ataque</label>
-            <select id="attack-type" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-sky-500"></select>
-          </div>
-          <div>
-            <label for="attack-source" class="block text-sm font-semibold mb-1">Origen (IP simulada)</label>
-            <input id="attack-source" type="text" placeholder="Auto si vacio" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-sky-500 font-mono text-sm" />
-          </div>
-          <div>
-            <label for="attack-note" class="block text-sm font-semibold mb-1">Nota (opcional)</label>
-            <input id="attack-note" type="text" placeholder="Ej. prueba lab ASIR" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
-          </div>
-          <div class="md:col-span-2 lg:col-span-4 flex flex-wrap gap-3">
-            <button type="submit" class="bg-sky-700 hover:bg-sky-800 text-white font-semibold px-4 py-2 rounded-lg">Registrar ataque</button>
-            <button type="button" id="btn-random" class="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-4 py-2 rounded-lg">Simular ataque aleatorio</button>
-            <button type="button" id="btn-clear" class="bg-rose-700 hover:bg-rose-800 text-white font-semibold px-4 py-2 rounded-lg">Vaciar registro</button>
-            <button type="button" id="btn-export" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg">Exportar JSON</button>
-          </div>
-        </form>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-4">
-          Automatizacion: abre
-          <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">log-attack.html?type=port_scan&amp;src=198.51.100.10</code>
-          o usa la URL de esta pagina con
-          <code class="bg-slate-100 dark:bg-slate-800 px-1 rounded">?type=brute_force_ssh&amp;src=...</code>
-          (ver README).
-        </p>
-      </section>
-
-      <!-- Filtros -->
-      <section class="flex flex-wrap gap-4 items-center">
-        <label class="text-sm font-semibold" for="filter-type">Filtrar tipo</label>
-        <select id="filter-type" class="px-3 py-2 rounded-lg border dark:bg-slate-900 dark:border-slate-600 text-sm max-w-xs"></select>
-        <label class="text-sm font-semibold" for="filter-sev">Severidad</label>
-        <select id="filter-sev" class="px-3 py-2 rounded-lg border dark:bg-slate-900 dark:border-slate-600 text-sm">
-          <option value="all">Todas</option>
-          <option value="high">Alta</option>
-          <option value="medium">Media</option>
-          <option value="low">Baja</option>
-        </select>
-      </section>
-
-      <!-- Lista -->
-      <section>
-        <h2 class="text-xl font-bold mb-4">Registro de ataques (<span id="list-count">0</span>)</h2>
-        <ul id="attack-list" class="space-y-3"></ul>
-
-        <template id="attack-template">
-          <li class="attack-row bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm">
-            <div class="flex flex-wrap justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
-              <div>
-                <h3 class="attack-title font-bold text-lg"></h3>
-                <p class="attack-meta text-sm text-slate-600 dark:text-slate-400 mt-1"></p>
-              </div>
-              <span class="sev-badge text-xs font-bold px-3 py-1 rounded-full h-fit"></span>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight">SECURITY MONITOR <span class="text-blue-600">v2.0</span></h1>
+                <p class="text-slate-500 font-medium">Laboratorio: IDS/IPS Snort + Firewall pfSense + Auditoría</p>
             </div>
-            <div class="grid gap-3 md:grid-cols-3 text-sm">
-              <div class="layer-box layer-ids">
-                <p class="font-semibold text-sky-800 dark:text-sky-300">IDS / IPS</p>
-                <p class="layer-tool text-slate-600 dark:text-slate-400 mt-1"></p>
-                <p class="layer-action font-medium mt-1"></p>
-                <p class="layer-detail text-slate-600 dark:text-slate-400 mt-1 text-xs"></p>
-              </div>
-              <div class="layer-box layer-fw">
-                <p class="font-semibold text-violet-800 dark:text-violet-300">Firewall</p>
-                <p class="layer-tool text-slate-600 dark:text-slate-400 mt-1"></p>
-                <p class="layer-action font-medium mt-1"></p>
-                <p class="layer-detail text-slate-600 dark:text-slate-400 mt-1 text-xs"></p>
-              </div>
-              <div class="layer-box layer-audit">
-                <p class="font-semibold text-amber-900 dark:text-amber-200">Auditoria</p>
-                <p class="layer-tool text-slate-600 dark:text-slate-400 mt-1"></p>
-                <p class="layer-action font-medium mt-1"></p>
-                <p class="layer-detail text-slate-600 dark:text-slate-400 mt-1 text-xs"></p>
-              </div>
+            <div class="flex gap-3">
+                <button onclick="onRandom()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold shadow-lg shadow-blue-200 transition-all">Simular Ataque WAN</button>
+                <button onclick="onClear()" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-lg font-bold transition-all">Limpiar Logs</button>
             </div>
-          </li>
-        </template>
+        </header>
 
-        <div id="empty-state" class="hidden empty-state border border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center text-slate-500 dark:text-slate-400">
-          <p id="empty-title" class="font-semibold">No hay ataques en el registro</p>
-          <p id="empty-sub" class="text-sm mt-2">Registra uno manualmente, simula uno o envia uno por URL o log-attack.html</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card">
+                <span class="text-xs font-bold text-slate-400 uppercase">Alertas Totales</span>
+                <div id="stat-total" class="text-3xl font-black text-slate-800">0</div>
+            </div>
+            <div class="stat-card border-l-4 border-l-red-500">
+                <span class="text-xs font-bold text-red-400 uppercase">Críticas (Bloqueadas)</span>
+                <div id="stat-high" class="text-3xl font-black text-red-600">0</div>
+            </div>
+            <div class="stat-card border-l-4 border-l-blue-500">
+                <span class="text-xs font-bold text-blue-400 uppercase">Capa IDS Activa</span>
+                <div class="text-sm font-bold text-blue-600 mt-1 italic italic">Snort Engine v4.0</div>
+            </div>
+            <div class="stat-card border-l-4 border-l-green-500">
+                <span class="text-xs font-bold text-green-400 uppercase">Estado Firewall</span>
+                <div class="text-sm font-bold text-green-600 mt-1">pfSense: PROTEGIENDO</div>
+            </div>
         </div>
-      </section>
-    </main>
+
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            <div class="bg-slate-800 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-white font-bold tracking-wide">LOG DE EVENTOS DE SEGURIDAD (INTERFAZ WAN)</h2>
+                <span class="text-slate-400 text-xs font-mono">Real-time Traffic Analysis</span>
+            </div>
+            <div id="attack-list" class="divide-y divide-slate-100 min-h-[400px]">
+                <div id="empty-state" class="p-20 text-center">
+                    <p class="text-slate-400 font-medium italic">No se detecta tráfico malicioso en el perímetro...</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="attack-store.js"></script>
     <script src="app.js"></script>
-  </body>
+</body>
 </html>

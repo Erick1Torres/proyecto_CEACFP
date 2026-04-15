@@ -1,122 +1,20 @@
 .stat-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    border: 1px solid #f1f5f9;
 }
 
-.dark .stat-card {
-  background: #0f172a;
-  border-color: #334155;
+.attack-entry {
+    animation: slideIn 0.3s ease-out;
 }
 
-.pillar-card {
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.dark .pillar-card {
-  border-color: #334155;
-}
-
-.pillar-ids {
-  background: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 100%);
-}
-
-.dark .pillar-ids {
-  background: linear-gradient(135deg, #0c4a6e 0%, #0f172a 100%);
-}
-
-.pillar-fw {
-  background: linear-gradient(135deg, #ede9fe 0%, #f8fafc 100%);
-}
-
-.dark .pillar-fw {
-  background: linear-gradient(135deg, #4c1d95 0%, #0f172a 100%);
-}
-
-.pillar-audit {
-  background: linear-gradient(135deg, #fef3c7 0%, #f8fafc 100%);
-}
-
-.dark .pillar-audit {
-  background: linear-gradient(135deg, #78350f 0%, #0f172a 100%);
-}
-
-.attack-row {
-  transition: opacity 0.2s ease;
-}
-
-.sev-high {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.sev-medium {
-  background: #ffedd5;
-  color: #9a3412;
-}
-
-.sev-low {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.dark .sev-high {
-  background: #7f1d1d;
-  color: #fecaca;
-}
-
-.dark .sev-medium {
-  background: #7c2d12;
-  color: #fed7aa;
-}
-
-.dark .sev-low {
-  background: #14532d;
-  color: #bbf7d0;
-}
-
-.layer-box {
-  background: #f8fafc;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-}
-
-.dark .layer-box {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-.empty-state {
-  animation: fade-in 0.2s ease-out;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.toast {
-  pointer-events: auto;
-  background: #0f172a;
-  color: #f8fafc;
-  border-radius: 10px;
-  padding: 10px 14px;
-  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.25);
-  font-size: 14px;
-}
-
-.dark .toast {
-  background: #1e293b;
-  color: #f1f5f9;
-}
+.severity-high { background: #fef2f2; border-left: 4px solid #ef4444; }
+.severity-medium { background: #fffbeb; border-left: 4px solid #f59e0b; }
+.severity-low { background: #f0fdf4; border-left: 4px solid #10b981; }
